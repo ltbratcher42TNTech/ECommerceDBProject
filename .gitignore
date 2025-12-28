@@ -1,0 +1,18 @@
+# Secrets
+.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# PyCharm
+.idea/
+*.iml
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+Example Readme.rtf

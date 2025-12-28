@@ -1,0 +1,13 @@
+USE ecommerce_db;
+
+SET FOREIGN_KEY_CHECKS = 0;
+
+TRUNCATE TABLE payments;
+TRUNCATE TABLE order_items;
+TRUNCATE TABLE orders;
+TRUNCATE TABLE inventory;
+TRUNCATE TABLE products;
+TRUNCATE TABLE categories;
+TRUNCATE TABLE users;
+
+SET FOREIGN_KEY_CHECKS = 1;
