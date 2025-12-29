@@ -74,6 +74,7 @@ All queries are written using standard SQL and they also leverage joins, aggrega
 ---
 
 ## Project Structure
+```
 ECommerceDBProject/
 |–– schema/
 | |–– create_tables.sql
@@ -96,6 +97,7 @@ ECommerceDBProject/
 | |––ER_diagram
 |–– .gitignore
 |–– README.md
+```
 
 
 ---
