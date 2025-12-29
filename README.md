@@ -40,7 +40,7 @@ Key design decisions include:
 ---
 
 ## Entity-Relationship Diagram
-![ER Diagram](ER_diagram.png)
+![ER Diagram](images/ER_diagram.png)
 
 ---
 
