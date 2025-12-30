@@ -2,7 +2,7 @@
 
 ## Overview
 This project implements a relational database system for a simplified, yet not too simple, e-commerce platform. 
-The database is designed to support both **transactional workloads** (for example, stuff like orders, payments, inventory updates)
+The database is designed to support both **transactional operations** such as orders, payments, and inventory updates
 and **analytical queries** (with queries for trends like revenue trends, customer behavior).
 
 The primary focus of this project is on **schema design**, **data integrity**, **query performance**, and **scalability**, rather than front-end functionality. In fact, in it's current state, it's essentially only backend, with possibility for a front-end in the future, hence why I mentioned scalability
