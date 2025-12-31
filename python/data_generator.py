@@ -14,6 +14,8 @@ def generate_users(conn, count=10):
     for _ in range(count):
         first_name = fake.first_name().lower()
         last_name = fake.last_name().lower()
+
+        # Ensure email is both unique as well as relevant to name
         email = f"{first_name}.{last_name}{random.randint(1, 9999)}@example.com"
 
         cursor.execute("""
@@ -34,6 +36,7 @@ def generate_categories(conn):
     cursor = conn.cursor()
     category_ids = {}
 
+    # Here, we insert categories idempotently
     for category in PRODUCT_CATALOG.keys():
         cursor.execute("""
             INSERT INTO categories (Name)
@@ -41,6 +44,7 @@ def generate_categories(conn):
             ON DUPLICATE KEY UPDATE Name = Name
         """, (category,))
 
+    # Then we fetch IDs for later foreign key use
     cursor.execute("SELECT CategoryID, Name FROM categories")
     for cid, name in cursor.fetchall():
         category_ids[name] = cid
@@ -68,6 +72,7 @@ def generate_products_and_inventory(conn, category_ids):
             product_id = cursor.lastrowid
             product_ids.append(product_id)
 
+            # Initialize inventory stock
             cursor.execute("""
                 INSERT INTO inventory (ProductID, StockQuantity)
                 VALUES (%s, %s)
@@ -86,6 +91,7 @@ def generate_orders(conn, user_ids, product_ids, order_count=40):
         user_id = random.choice(user_ids)
         status = random.choice(["COMPLETED", "PENDING"])
 
+        # Create order with a temp total
         cursor.execute("""
             INSERT INTO orders (UserID, OrderStatus, OrderTotal, CreatedAt)
             VALUES (%s, %s, 0, NOW())
@@ -94,14 +100,17 @@ def generate_orders(conn, user_ids, product_ids, order_count=40):
         order_id = cursor.lastrowid
         order_total = 0
 
+        # We make it select 1–4 random products per order
         items = random.sample(product_ids, random.randint(1, 4))
 
         for product_id in items:
+            # Fetch current price
             cursor.execute("""
                 SELECT Price FROM products WHERE ProductID = %s
             """, (product_id,))
             price = cursor.fetchone()[0]
 
+            # Check available inv
             cursor.execute("""
                 SELECT StockQuantity FROM inventory WHERE ProductID = %s
             """, (product_id,))
@@ -112,11 +121,13 @@ def generate_orders(conn, user_ids, product_ids, order_count=40):
 
             quantity = random.randint(1, min(3, stock))
 
+            # Insert order item
             cursor.execute("""
                 INSERT INTO order_items (OrderID, ProductID, Quantity, UnitPrice)
                 VALUES (%s, %s, %s, %s)
             """, (order_id, product_id, quantity, price))
 
+            # Deduct inventory
             cursor.execute("""
                 UPDATE inventory
                 SET StockQuantity = StockQuantity - %s
@@ -125,12 +136,14 @@ def generate_orders(conn, user_ids, product_ids, order_count=40):
 
             order_total += quantity * price
 
+        # Update final order total
         cursor.execute("""
             UPDATE orders
             SET OrderTotal = %s
             WHERE OrderID = %s
         """, (round(order_total, 2), order_id))
 
+        # Record payment **ONLY** for completed orders
         if status == "COMPLETED":
             cursor.execute("""
                 INSERT INTO payments (OrderID, PaymentMethod, PaymentStatus, PaidAt)
