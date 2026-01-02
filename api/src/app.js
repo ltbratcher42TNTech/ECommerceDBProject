@@ -11,4 +11,8 @@ app.get('/', (req, res) => {
   res.send('Ecommerce API is running');
 });
 
+const usersRoutes = require('./routes/users.routes');
+app.use('/api/users', usersRoutes);
+
+
 module.exports = app;
