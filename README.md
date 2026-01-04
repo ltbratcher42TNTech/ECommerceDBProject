@@ -1,11 +1,11 @@
 # E-Commerce Database & Analytics System
 
 ## Overview
-This project implements a relational database system for a simplified, yet not too simple, e-commerce platform. 
-The database is designed to support both **transactional operations** such as orders, payments, and inventory updates
-and **analytical queries** (with queries for trends like revenue trends, customer behavior).
+This project implements a relational database system for a simplified, yet not too simple, e-commerce platform.  
+The backend now includes a **RESTful API built with Node.js and Express** supporting transactional operations such as user management, product catalog, orders, payments, inventory updates, and **analytics** endpoints for business insights.
 
-The primary focus of this project is on **schema design**, **data integrity**, **query performance**, and **scalability**, rather than front-end functionality. In fact, in it's current state, it's essentially only backend, with possibility for a front-end in the future, hence why I mentioned scalability
+The database is designed to support both **transactional operations** and **analytical queries** (with queries for trends like revenue trends, customer behavior).  
+The API focuses on **data integrity**, **query performance**, and **scalability**, enabling future front-end integration, if I desire to integrate such a feature.
 
 ---
 
@@ -36,6 +36,35 @@ Key design decisions include:
 - Separation of inventory data from product metadata
 - Explicit foreign key constraints to enforce referential integrity
 - Use of surrogate primary keys for scalability and indexing efficiency
+
+---
+## RESTful API Endpoints
+
+### Users
+- `GET /api/users` — List all users  
+- `GET /api/users/:id` — Get user details  
+- `POST /api/users` — Create new user  
+
+### Categories
+- `GET /api/categories` — List categories  
+
+### Products
+- `GET /api/products` — List products with category and inventory info  
+- `POST /api/products` — Create product with inventory initialization (transactional)  
+
+### Orders
+- `GET /api/orders/:id` — Retrieve detailed order with user, items, and payment info  
+- `POST /api/orders` — Place new order (validates users, products, inventory, handles transaction, payments)  
+- `GET /api/users/:id/orders` — List orders for a given user  
+
+### Analytics
+- `GET /api/analytics/total-revenue` — Total revenue from completed orders  
+- `GET /api/analytics/monthly-revenue` — Revenue grouped by month  
+- `GET /api/analytics/top-customers` — Customers ranked by total spend  
+- `GET /api/analytics/top-products` — Best-selling products by quantity  
+- `GET /api/analytics/revenue-by-product` — Revenue by product  
+
+All POST endpoints include input validation and transactional safety to maintain consistency.
 
 ---
 
@@ -76,49 +105,60 @@ All queries are written using standard SQL and they also leverage joins, aggrega
 ## Project Structure
 ```
 ECommerceDBProject/
-|–– schema/
-| |–– create_tables.sql
-| |–– constraints.sql
-| |–– indexes.sql
-|
-|–– data/
-| |–– seed_data.sql
-|
-|–– scripts/
-| |–– analytics.sql
-│ |–– reset_db.sql
-|
-|–– python/
-| |–– db.py
-| |–– data_generator.py
-| |–– product_catalog.py
-|
-|–– images/
-| |––ER_diagram
-|–– .gitignore
-|–– README.md
+├── README.md
+├── api
+│   └── src
+│       ├── app.js
+│       ├── connection.js
+│       ├── routes
+│       │   ├── analytics.routes.js
+│       │   ├── categories.routes.js
+│       │   ├── orders.routes.js
+│       │   ├── products.routes.js
+│       │   └── users.routes.js
+│       └── server.js
+├── data
+│   └── seed_data.sql
+├── images
+│   └── ER_diagram.png
+├── python
+│   ├── config.py
+│   ├── data_generator.py
+│   ├── db.py
+│   ├── product_catalog.py
+│   └── test_connection.py
+├── queries
+│   └── analytics.sql
+├── schema
+│   ├── constraints.sql
+│   ├── create_tables.sql
+│   └── indexes.sql
+└── scripts
+    ├── analytics.sql
+    └── reset_db.sql
 ```
 
 
 ---
 
 ## Tech Stack
-- MySQL / MariaDB
-- SQL
-- Python (data generation)
-- Faker (selective use for realistic data)
-- MySQL Workbench
-- Git / GitHub
+- MySQL / MariaDB  
+- Node.js / Express (REST API)  
+- SQL  
+- Python (data generation)  
+- Faker (for realistic data)  
+- MySQL Workbench  
+- Git / GitHub 
 
 ---
 
-## Future Work
+## Possible Future Expansions
 Planned extensions to this project in the near future include:
-- RESTful API using Node.js and Express
-- CRUD endpoints for core entities
-- Optional desktop UI for interaction and visualization
+- Expand API with full CRUD endpoints for all entities
+- Add authentication
+- Develop frontend UI for interaction and visualization
 
 ---
 
 ## Summary
-This project demonstrates a strong foundation in **relational database design**, **backend data modeling**, and **analytical querying**, reflecting patterns used in real-world e-commerce systems.
+This project demonstrates a full backend system combining relational database design, API development, and data analytics in an e-commerce context. It reflects patterns and best practices used in real-world scalable commerce applications.
