@@ -70,6 +70,7 @@ All POST endpoints include input validation and transactional safety to maintain
 
 ## Entity-Relationship Diagram
 ![ER Diagram](images/ER_diagram.png)
+The ER diagram aids in documenting the design process used to model real-world e-commerce relationships prior to implementation.
 
 ---
 
