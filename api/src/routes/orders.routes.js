@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const pool = require('../connection');
 
+
 // POST /api/orders (THIS IS MY MAJOR ENDPOINT)
 router.post('/', async (req,res,next) => {
   const { userId, items, payment } = req.body
@@ -111,5 +112,86 @@ router.post('/', async (req,res,next) => {
     connection.release();
   }
 });
+
+
+// GET /api/orders/:id
+router.get('/:id', async (req,res,next) => {
+  const { id } = req.params;
+
+  const connection = await pool.getConnection();
+
+  try {
+    // I will be separating joins so that I'm not using one massive jumbled join for readability, ease of use, and debugging
+    // order and user
+    const [orderRows] = await connection.query(
+      `
+      SELECT
+      o.OrderID,
+        o.OrderStatus,
+        o.OrderTotal,
+        o.CreatedAt,
+        u.UserID,
+        u.Email
+      FROM orders o
+      JOIN users u ON o.UserID = u.UserID
+      WHERE o.OrderID = ?
+      `,
+      [id]
+    );
+
+    if (orderRows.length === 0) {
+      return res.status(404).json({ error: 'Order not found' });
+    }
+
+    const order = orderRows[0];
+
+    // order items and products
+    const [itemRows] = await connection.query(
+      `
+      SELECT 
+      oi.ProductID,
+      p.name AS ProductName,
+      oi.Quantity,
+      oi.UnitPrice
+      FROM order_items oi
+      JOIN products p ON oi.ProductID = p.ProductID
+      WHERE oi.OrderID = ?
+      `,
+      [id]
+    );
+
+    // Payment
+    const [paymentRows] = await connection.query(
+      `
+      SELECT
+        PaymentMethod,
+        PaymentStatus,
+        PaidAt
+      FROM payments
+      WHERE OrderID = ?
+      `,
+      [id]
+    );
+
+    // now I will format the response
+    res.json({
+      OrderID: order.OrderID,
+      OrderStatus: order.OrderStatus,
+      OrderTotal: order.OrderTotal,
+      CreatedAt: order.CreatedAt,
+      User: {
+        UserID: order.UserID,
+        Email: order.Email
+      },
+      Items: itemRows,
+      Payment: paymentRows.length ? paymentRows[0] : null
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Failed to fetch order' });
+  }
+})
+
+
 
 module.exports = router;
